@@ -9,9 +9,9 @@ import { app, server } from "./lib/socket.js";
 import path from "path";
 dotenv.config();
 
-const __dirname = path.resolve();
+const PORT = process.env.PORT || 5001;
 
-const port = process.env.PORT || 5001;
+const __dirname = path.resolve();
 
 //middleware
 app.use(express.json({ limit: "10mb" }));
@@ -30,8 +30,8 @@ if (process.env.NODE_ENV !== "production") {
 connectDB()
   .then(() => {
     console.log("DB connected");
-    server.listen(port, () => {
-      console.log(`Server is running on port ${port}`);
+    server.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
     });
   })
   .catch((err) => {
