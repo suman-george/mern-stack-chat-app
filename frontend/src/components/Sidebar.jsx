@@ -1,25 +1,26 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useChatStore } from "../store/useChatStore.js";
 import { Users } from "lucide-react";
 import SidebarSkeleton from "./skeletons/SidebarSkeleton.jsx";
+import { useAuthStore } from "../store/useAuthStore.js";
 
 const Sidebar = () => {
-  const {
-    getUsers,
-    selectedUser,
-    users,
-    isUsersLoading,
-    setSelectedUser,
-    onlineUsers,
-  } = useChatStore();
+  const { getUsers, selectedUser, users, isUsersLoading, setSelectedUser } =
+    useChatStore();
+  const { onlineUsers } = useAuthStore();
+
+  const [showOnlineOnly, setShowOnlineOnly] = useState(false);
 
   useEffect(() => {
     getUsers();
   }, [getUsers]);
 
-  console.log("users", users);
+  const filteredUsers = showOnlineOnly
+    ? users.filter((user) => onlineUsers.includes(user._id))
+    : users;
 
   if (isUsersLoading) return <SidebarSkeleton />;
+
   return (
     <aside className="h-full w-20 lg:w-72 border-r border-base-300 flex flex-col transition-all duration-200">
       <div className="border-b border-base-300 w-full p-5">
@@ -30,7 +31,12 @@ const Sidebar = () => {
         {/* TODO: Online filter toggle */}
         <div className="mt-3 hidden lg:flex items-center gap-2">
           <label className="cursor-pointer flex items-center gap-2">
-            <input type="checkbox" className="checkbox checkbox-sm" />
+            <input
+              type="checkbox"
+              className="checkbox checkbox-sm"
+              checked={showOnlineOnly}
+              onChange={() => setShowOnlineOnly(!showOnlineOnly)}
+            />
             <span className="text-sm">Show online only</span>
           </label>
           <span className="text-xs text-zinc-500">online</span>
@@ -38,7 +44,7 @@ const Sidebar = () => {
       </div>
 
       <div className="overflow-y-auto w-full py-3">
-        {users.map((user) => (
+        {filteredUsers.map((user) => (
           <button
             key={user._id}
             className={`
@@ -72,9 +78,9 @@ const Sidebar = () => {
           </button>
         ))}
 
-        {/* {filteredUsers.length === 0 && (
+        {filteredUsers.length === 0 && (
           <div className="text-center text-zinc-500 py-4">No online users</div>
-        )} */}
+        )}
       </div>
     </aside>
   );
