@@ -9,18 +9,23 @@ import { app, server } from "./lib/socket.js";
 import path from "path";
 dotenv.config();
 
+const __dirname = path.resolve();
+
 const port = process.env.PORT || 5001;
 
 //middleware
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cookieParser());
-app.use(
-  cors({
-    origin: "http://localhost:5173",
-    credentials: true,
-  }),
-);
+
+if (process.env.NODE_ENV !== "production") {
+  app.use(
+    cors({
+      origin: "http://localhost:5173",
+      credentials: true,
+    }),
+  );
+}
 
 connectDB()
   .then(() => {
